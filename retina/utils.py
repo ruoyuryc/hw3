@@ -54,48 +54,7 @@ STANDARD_COLORS = [
 ]
 
 
-def draw_bounding_box_on_image_array(image,
-                                                                         ymin,
-                                                                         xmin,
-                                                                         ymax,
-                                                                         xmax,
-                                                                         color='red',
-                                                                         thickness=4,
-                                                                         display_str_list=(),
-                                                                         use_normalized_coordinates=True):
-    """Adds a bounding box to an image (numpy array).
-    Bounding box coordinates can be specified in either absolute (pixel) or
-    normalized coordinates by setting the use_normalized_coordinates argument.
-    Args:
-        image: a numpy array with shape [height, width, 3].
-        ymin: ymin of bounding box.
-        xmin: xmin of bounding box.
-        ymax: ymax of bounding box.
-        xmax: xmax of bounding box.
-        color: color to draw bounding box. Default is red.
-        thickness: line thickness. Default value is 4.
-        display_str_list: list of strings to display in box
-                                            (each to be shown on its own line).
-        use_normalized_coordinates: If True (default), treat coordinates
-            ymin, xmin, ymax, xmax as relative to the image.    Otherwise treat
-            coordinates as absolute.
-    """
-    image_pil = Image.fromarray(np.uint8(image)).convert('RGB')
-    draw_bounding_box_on_image(image_pil, ymin, xmin, ymax, xmax, color,
-                                                         thickness, display_str_list,
-                                                         use_normalized_coordinates)
-    np.copyto(image, np.array(image_pil))
-
-
-def draw_bounding_box_on_image(image,
-                                                             ymin,
-                                                             xmin,
-                                                             ymax,
-                                                             xmax,
-                                                             color='red',
-                                                             thickness=4,
-                                                             display_str_list=(),
-                                                             use_normalized_coordinates=True):
+def draw_bounding_box_on_image(image, ymin, xmin, ymax, xmax, color='red', thickness=4, display_str_list=(), use_normalized_coordinates=True):
     """Adds a bounding box to an image.
     Bounding box coordinates can be specified in either absolute (pixel) or
     normalized coordinates by setting the use_normalized_coordinates argument.
@@ -136,7 +95,7 @@ def draw_bounding_box_on_image(image,
     # instead of above.
     display_str_heights = [font.getsize(ds)[1] for ds in display_str_list]
     # Each display_str has a top and bottom margin of 0.05x.
-    total_display_str_height = (1 + 2 * 0.05) * sum(display_str_heights)
+    total_display_str_height = (1 + 2*0.05) * sum(display_str_heights)
 
     if top > total_display_str_height:
         text_bottom = top
@@ -156,28 +115,6 @@ def draw_bounding_box_on_image(image,
                 fill='black',
                 font=font)
         text_bottom -= text_height - 2 * margin
-
-
-def draw_mask_on_image_array(image, mask, color='red', alpha=0.4):
-   
-    if image.dtype != np.uint8:
-        raise ValueError('`image` not of type np.uint8')
-    if mask.dtype != np.uint8:
-        raise ValueError('`mask` not of type np.uint8')
-    if np.any(np.logical_and(mask != 1, mask != 0)):
-        raise ValueError('`mask` elements should be in [0, 1]')
-    if image.shape[:2] != mask.shape:
-        raise ValueError('The image has spatial dimensions %s but the mask has '
-                                         'dimensions %s' % (image.shape[:2], mask.shape))
-    rgb = ImageColor.getrgb(color)
-    pil_image = Image.fromarray(image)
-
-    solid_color = np.expand_dims(
-            np.ones_like(mask), axis=2) * np.reshape(list(rgb), [1, 1, 3])
-    pil_solid_color = Image.fromarray(np.uint8(solid_color)).convert('RGBA')
-    pil_mask = Image.fromarray(np.uint8(255.0*alpha*mask)).convert('L')
-    pil_image = Image.composite(pil_solid_color, pil_image, pil_mask)
-    np.copyto(image, np.array(pil_image.convert('RGB')))
 
 
 def visualize_boxes_and_labels_on_image_array(    
